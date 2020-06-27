@@ -20,15 +20,17 @@ from scripts.datagen import Datagen
 from scripts.architectures import Rn50
 from scripts.train import train_model
 
+
 def get_device():
     if torch.cuda.is_available():
-        return 'cuda:0'
+        return "cuda:0"
     else:
-        return 'cpu'
+        return "cpu"
+
 
 if __name__ == "__main__":
 
-    train_file = 'data/3_class_train_df.csv'
+    train_file = "data/3_class_train_df.csv"
     num_workers = 2
     val_split = 0.2
     batch_size = 32
@@ -38,20 +40,23 @@ if __name__ == "__main__":
 
     df = pd.read_csv(train_file)
 
-    train_transforms = transforms.Compose([
-        transforms.Resize((256, 256)),
-        transforms.RandomResizedCrop(size=256, scale=(0.8, 1.0)),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406],
-                            [0.229, 0.224, 0.225]),])
+    train_transforms = transforms.Compose(
+        [
+            transforms.Resize((256, 256)),
+            transforms.RandomResizedCrop(size=256, scale=(0.8, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        ]
+    )
 
-
-    validation_transforms = transforms.Compose([
-        transforms.Resize((256, 256)),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406],
-                            [0.229, 0.224, 0.225]),])
+    validation_transforms = transforms.Compose(
+        [
+            transforms.Resize((256, 256)),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        ]
+    )
 
     train_set = Datagen(df, l_encoder=le, transforms=train_transforms)
     validation_set = Datagen(df, l_encoder=le, transforms=validation_transforms)
@@ -65,15 +70,16 @@ if __name__ == "__main__":
         # shuffle=True,
         batch_size=batch_size,
         sampler=train_sampler,
-        num_workers=num_workers,)
-
+        num_workers=num_workers,
+    )
 
     valid_loader = torch.utils.data.DataLoader(
         validation_set,
         # shuffle=False,
         batch_size=batch_size,
         sampler=valid_sampler,
-        num_workers=num_workers,)
+        num_workers=num_workers,
+    )
 
     device = get_device()
     net = Rn50(device=device, classes=3)
@@ -93,5 +99,5 @@ if __name__ == "__main__":
         dataloaders=dataloaders,
         dataloader_len=dataloader_len,
         input_shape=input_shape,
-        num_epochs=num_epochs,)
-        
+        num_epochs=num_epochs,
+    )

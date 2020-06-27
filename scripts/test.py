@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
 
+import math
 import torch
+from sklearn.metrics import classification_report, confusion_matrix
+from .utils import plot_test_image_result
+import pandas as pd
 
-def test_model(model, testloader, device):
+def test_model(model, testloader, device, encoder=None):
 
     correct = 0
     total = 0
+    true_list = list()
+    pred_list = list()
 
     for idx, (labels, inputs) in enumerate(testloader):
-        # iter_batch = math.ceil(testloader/testloader.batch_size)
-        # print(f'[phase: test] batch: {idx+1}/{iter_batch}', end='\r')
+        iter_batch = math.ceil(len(testloader.dataset)/testloader.batch_size)
+        print(f'[phase: test] batch: {idx+1}/{iter_batch}', end='\r')
 
         inputs = inputs.to(device)
         labels = labels.to(device)
@@ -19,20 +25,33 @@ def test_model(model, testloader, device):
             probabilities = torch.exp(outputs)
             _, predicted = torch.max(probabilities, 1)
 
-            total = idx+1
+            total = idx + 1
             correct += torch.sum(predicted == labels.data)
-            # print(f'{torch.max(torch.exp(outputs), dim=1)} - {torch.exp(outputs)}')
+            true_list.append((labels.data.cpu()).numpy().item())
+            pred_list.append((predicted.cpu()).numpy().item())
 
-    print(f'[phase: test] acc: {total} {correct} {100*(correct.item()/total):.3f}')
+    acc = 100*(correct.item()/total)
+    print(f"[phase: test] total: {total}, correct: {correct}, acc: {acc:.3f}")
 
-def test_image(model, image, transform, device, labelencoder):
+    print(classification_report(tuple(true_list), tuple(pred_list)))
+
+    y_true = pd.Series(true_list, name='Actual')
+    y_pred = pd.Series(pred_list, name='Predicted')
+    cm = pd.crosstab(y_true, y_pred,  margins=True)
+
+    print("confusion matrix")
+    if encoder is not None:
+        print({i : encoder.classes_[i] for i in range(0, len(encoder.classes_))})
+    print(cm)
+
+
+def test_image(model, image, transform, device, labelencoder=None):
 
     input_tensor = transform(image).unsqueeze(0)
     inputs = input_tensor.to(device)
     outputs = model(inputs)
     probabilities = torch.exp(outputs)
-    _, predicted = torch.max(outputs, 1)
+
     prob = (probabilities.cpu()).detach().numpy().flatten()
 
-    print(f'class : {predicted.item()} {labelencoder.inverse_transform([predicted.item()])}')
-    print(f'probabilities : {prob}')
+    plot_test_image_result(image, prob, labelencoder)

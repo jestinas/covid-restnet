@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
+
 class Datagen(Dataset):
     def __init__(self, dataframe, transforms=None, l_encoder=None):
         self.df = dataframe
@@ -11,10 +12,10 @@ class Datagen(Dataset):
         self.encoder = l_encoder
 
         if self.encoder is not None:
-            self.df['LABEL'] = self.encoder.fit_transform(self.df['LABEL'])
+            self.df["LABEL"] = self.encoder.fit_transform(self.df["LABEL"])
 
     def __len__(self):
-        return (len(self.df))
+        return len(self.df)
 
     def __getitem__(self, idx):
 
