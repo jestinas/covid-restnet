@@ -94,3 +94,40 @@ output -
 
 - `test_image(model,image,in_shape,transform,device,labelencoder=None,cam=None)`
 
+---
+
+# Sample Model Results
+
+    [phase: test] total: 240, correct: 112, acc: 46.667
+
+                precision    recall  f1-score   support
+
+            0       0.00      0.00      0.00        38
+            1       0.69      0.17      0.28       104
+            2       0.44      0.96      0.60        98
+
+        accuracy                           0.47       240
+    macro avg       0.38      0.38      0.29       240
+    weighted avg       0.48      0.47      0.37       240
+
+    [phase: test] confusion matrix
+
+    Predicted  0   1    2  All
+    Actual
+    0          0   4   34   38
+    1          1  18   85  104
+    2          0   4   94   98
+    All        1  26  213  240
+
+    {0: 'covid', 1: 'normal', 2: 'pneumonia'}
+
+---
+
+# Sample Image Results
+
+1. Normal X-Ray
+![Normal](reports/test_image01.png?style=center "normal xray activation map")
+
+1. Covid19
+![Covid19](reports/test_image00.png?style=center "Covid19 xray activation map")
+
