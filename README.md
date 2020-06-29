@@ -37,7 +37,7 @@
 
 1.  [covid-chestxray-dataset](https://github.com/ieee8023/covid-chestxray-dataset) : dataset of chest X-ray and CT images of patients which are positive or suspected of COVID-19 or other viral and bacterial pneumonias (MERS, SARS, and ARDS.).
 
-2. [chest-xray-pneumonia](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia) : dataset of chest X-ray images of normal patients and infected with Pneumonia ( bacterial and viral ) and
+2. [chest-xray-pneumonia](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia) : dataset of chest X-ray images of normal patients and infected with Pneumonia ( bacterial and viral )
 
 # CNN Model
 
