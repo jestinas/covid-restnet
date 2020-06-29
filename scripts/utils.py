@@ -26,14 +26,18 @@ def data_viz(layer, label):
     plot_with_labels(low_dim_embs, labels)
 
 
-def plot_test_image_result(img, ps, le):
+def plot_test_image_result(img, ps, le, cam=None):
 
     _ = plt.figure(figsize=(8, 6))
     gs = gridspec.GridSpec(1, 2, width_ratios=[3, 1])
     ax1, ax2 = plt.subplot(gs[0]), plt.subplot(gs[1])
 
-    ax1.imshow(img)
-    ax1.axis('off')
+    if cam is not None:
+        ax1.imshow(cam, alpha=0.6)
+        ax1.imshow(img, alpha=0.4)
+    else:
+        ax1.imshow(img)
+
     ax2.barh(np.arange(len(ps)), ps)
     ax2.set_aspect(0.1)
     ax2.set_yticks(np.arange(len(ps)))
@@ -41,7 +45,7 @@ def plot_test_image_result(img, ps, le):
     for i, v in enumerate(ps):
         ax2.text(
             .01,
-            i-0,
+            i-0.1,
             f'{v:.3f}',
             color='blue',
             fontweight='bold')
@@ -53,5 +57,6 @@ def plot_test_image_result(img, ps, le):
 
     ax2.set_title('Class Probability')
     ax2.set_xlim(0, 1)
+
     plt.tight_layout()
     plt.show()

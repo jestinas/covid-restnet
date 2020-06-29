@@ -26,17 +26,17 @@ def get_device():
 if __name__ == "__main__":
 
     test_file = "data/3_class_test_df.csv"
-    image_file = "data/raw/normal/normal_001.jpeg"
+    image_file = "data/raw/covid/covid_001.jpg"
     num_workers = 2
     batch_size = 1
-    input_shape = (3, 256, 256)
+    input_shape = (256, 256)
     le = LabelEncoder()
 
     df = pd.read_csv(test_file)
 
     test_transforms = transforms.Compose(
         [
-            transforms.Resize((256, 256)),
+            transforms.Resize(input_shape),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
         ]
@@ -53,17 +53,20 @@ if __name__ == "__main__":
     model = Rn50(device=device, classes=3)
     model.load_state_dict(torch.load("./models/checkpoint.pth")["state_dict"])
 
-    # test_model(
-    #     model=model,
-    #     testloader=test_loader,
-    #     device=device,
-    #     encoder=label_enc)
+    test_model(
+        model=model,
+        testloader=test_loader,
+        device=device,
+        encoder=label_enc)
 
     input_image = Image.open(image_file).convert("RGB")
     test_image(
         model=model,
         image=input_image,
+        in_shape=input_shape,
         transform=test_transforms,
         device=device,
         labelencoder=label_enc,
+        cam=True
     )
+

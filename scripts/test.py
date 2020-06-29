@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import math
-import torch
-from sklearn.metrics import classification_report, confusion_matrix
-from .utils import plot_test_image_result
+
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import torch
+from scripts.activationmap import FeatureBuffer
+from sklearn.metrics import classification_report, confusion_matrix
+
+from .utils import plot_test_image_result
+
 
 def test_model(model, testloader, device, encoder=None):
 
@@ -45,13 +52,46 @@ def test_model(model, testloader, device, encoder=None):
     print(cm)
 
 
-def test_image(model, image, transform, device, labelencoder=None):
+
+def test_image(model, image, in_shape, transform, device, labelencoder=None, cam=None):
+    """
+    GradCam
+    """
+
+    if cam is not None:
+        final_conv_layer = model.net_back._modules.get('layer4')
+        fc_layer = model.net_head._modules.get('0')
+        fb = FeatureBuffer(final_conv_layer)
 
     input_tensor = transform(image).unsqueeze(0)
     inputs = input_tensor.to(device)
+
+    model = model.eval()
     outputs = model(inputs)
     probabilities = torch.exp(outputs)
-
     prob = (probabilities.cpu()).detach().numpy().flatten()
 
-    plot_test_image_result(image, prob, labelencoder)
+    if cam is not None:
+        _, predicted = torch.max(probabilities, 1)
+        feature_maps = fb.features
+
+        weights_and_biases = list(fc_layer.parameters())
+        class_weights = weights_and_biases[0][predicted]
+
+        class_weights = class_weights.reshape((-1, 1, 1))
+        feature_maps = feature_maps.flatten(start_dim=0, end_dim=1)
+
+        class_activation_maps = np.array(
+            torch.sum(feature_maps * class_weights, dim=0).cpu().detach(),
+            dtype=np.float32)
+
+        cam_map = cv2.resize(
+            class_activation_maps,
+            dsize=in_shape,
+            interpolation=cv2.INTER_LANCZOS4)
+
+    if cam is not None:
+        plot_test_image_result(image.resize(in_shape), prob, labelencoder, cam_map)
+    else:
+        plot_test_image_result(image, prob, labelencoder)
+
