@@ -125,6 +125,7 @@ output -
 
 # Sample Image Results
 
+
 1. Normal X-Ray
 ![Normal](reports/test_image01.png?style=center "normal xray activation map")
 
